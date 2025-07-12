@@ -65,19 +65,50 @@ function parseCSV(csvText) {
     return data;
 }
 
-// יוצר prompt מלא עם כל המידע
+// יוצר prompt מלא עם כל המידע בטון נכון
 function createFullSystemPrompt(data, userMessage) {
-    return `${data.styleTone}
+    // מעצב את לוחות הזמנים בצורה טבעית
+    let venuesText = '';
+    for (const [venueName, venueData] of Object.entries(data.venues)) {
+        if (Array.isArray(venueData) && venueData.length > 0) {
+            const venueHebrew = getVenueHebrew(venueName);
+            venuesText += `\n\n${venueHebrew}:\n`;
+            venueData.forEach(show => {
+                if (show['מה קורה'] === 'הופעה' && show['מי קורה']) {
+                    venuesText += `• ${show['מי קורה']} - ${show['תאריך']} ב-${show['מתי קורה']}\n`;
+                }
+            });
+        }
+    }
+    
+    return `אתה בוט AI עבור פסטיבל סמילנסקי - פסטיבל המוזיקה והאמנות הכי חם בבאר שבע!
 
-מידע על הפסטיבל:
+${data.styleTone}
+
+===== מידע על הפסטיבל =====
 ${data.festivalInfo}
 
-לוחות זמנים:
-${JSON.stringify(data.venues, null, 2)}
+===== לוח הופעות =====
+${venuesText}
 
-הודעת פתיחה: ${data.welcomeMessage}
+===== הודעת פתיחה =====
+${data.welcomeMessage}
+
+ענה בסגנון הפסטיבל - חם, מרגש, עם אנרגיה! השתמש בביטויים כמו "מטורף", "מהממם", "סמילנסקי קיצוני" ותתייחס לפסטיבל כחוויה בלתי נשכחת!
 
 שאלת המשתמש: ${userMessage}`;
+}
+
+// תרגום שמות מתחמים לעברית
+function getVenueHebrew(venueName) {
+    const venueNames = {
+        'mainStage': 'במת סמילנסקי',
+        'danceStage': 'במת המחול', 
+        'redStage': 'הבמה האדומה',
+        'elevatingStage': 'הבמה המרימה',
+        'breakingPoint': 'Breaking Point'
+    };
+    return venueNames[venueName] || venueName;
 }
 
 exports.handler = async (event, context) => {

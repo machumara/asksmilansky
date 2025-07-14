@@ -91,7 +91,7 @@ function parseCSV(csvText) {
 
 // יוצר prompt מלא עם כל המידע בטון נכון
 function createFullSystemPrompt(data, userMessage) {
-    // מעצב את לוחות הזמנים בצורה טבעית
+    // מעצב את לוחות הזמנים בצורה מלאה ל-Claude
     let venuesText = '';
     for (const [venueName, venueData] of Object.entries(data.venues)) {
         if (Array.isArray(venueData) && venueData.length > 0) {
@@ -99,7 +99,12 @@ function createFullSystemPrompt(data, userMessage) {
             venuesText += `\n\n${venueHebrew}:\n`;
             venueData.forEach(show => {
                 if (show['מה קורה'] === 'הופעה' && show['מי קורה']) {
-                    venuesText += `• ${show['מי קורה']} - ${show['תאריך']} ב-${show['מתי קורה']}\n`;
+                    // נותן ל-Claude את כל המידע כמו שהוא
+                    venuesText += `• אמן: ${show['מי קורה']}`;
+                    if (show['סוג'] && show['סוג'].trim()) {
+                        venuesText += ` | סוג: ${show['סוג'].trim()}`;
+                    }
+                    venuesText += ` | תאריך: ${show['תאריך']} | שעה: ${show['מתי קורה']}\n`;
                 }
             });
         }
@@ -112,7 +117,13 @@ ${data.styleTone}
 ===== מידע על הפסטיבל =====
 ${data.festivalInfo}
 
-===== לוח הופעות =====
+===== לוח הופעות מלא =====
+המידע למטה כולל את כל הפרטים על כל הופעה:
+- אמן: שם האמן/להקה
+- סוג: סוג המופע (ראפר, זמר יוצר, להקה, יצירת מחול, מופע לילדים וכו')
+- תאריך ושעה
+
+השתמש במידע הזה כדי לענות נכון על שאלות על אמנים וסוגי מופעים.
 ${venuesText}
 
 ===== הודעת פתיחה =====

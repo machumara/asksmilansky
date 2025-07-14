@@ -6,25 +6,48 @@ const path = require('path');
 async function loadAllData() {
     try {
         console.log('🔄 טוען מידע מקבצי data/...');
+        console.log('Current directory (__dirname):', __dirname);
+        console.log('Process working directory (cwd):', process.cwd());
         
         const data = {};
         
         // טוען מידע כללי על הפסטיבל
-        data.festivalInfo = await fs.readFile(path.join(process.cwd(), 'data/festival_info/fest_info.txt'), 'utf8');
+        // נסה נתיבים שונים עד שנמצא את הנכון
+        let basePath;
+        try {
+            basePath = path.resolve(__dirname, '../../');
+            console.log('Trying path 1:', path.join(basePath, 'data/festival_info/fest_info.txt'));
+            data.festivalInfo = await fs.readFile(path.join(basePath, 'data/festival_info/fest_info.txt'), 'utf8');
+            console.log('✅ Found files at:', basePath);
+        } catch (e1) {
+            console.log('Path 1 failed:', e1.message);
+            try {
+                basePath = process.cwd();
+                console.log('Trying path 2:', path.join(basePath, 'data/festival_info/fest_info.txt'));
+                data.festivalInfo = await fs.readFile(path.join(basePath, 'data/festival_info/fest_info.txt'), 'utf8');
+                console.log('✅ Found files at:', basePath);
+            } catch (e2) {
+                console.log('Path 2 failed:', e2.message);
+                basePath = '/opt/build/repo';
+                console.log('Trying path 3:', path.join(basePath, 'data/festival_info/fest_info.txt'));
+                data.festivalInfo = await fs.readFile(path.join(basePath, 'data/festival_info/fest_info.txt'), 'utf8');
+                console.log('✅ Found files at:', basePath);
+            }
+        }
         
         // טוען סגנון וטון
-        data.styleTone = await fs.readFile(path.join(process.cwd(), 'data/style_tone/style_tone.txt'), 'utf8');
+        data.styleTone = await fs.readFile(path.join(basePath, 'data/style_tone/style_tone.txt'), 'utf8');
         
         // טוען הודעת פתיחה
-        data.welcomeMessage = await fs.readFile(path.join(process.cwd(), 'data/welcome_message.txt'), 'utf8');
+        data.welcomeMessage = await fs.readFile(path.join(basePath, 'data/welcome_message.txt'), 'utf8');
         
         // טוען לוחות זמנים מכל המתחמים
         data.venues = {};
-        data.venues.mainStage = await loadCSV(path.join(process.cwd(), 'data/venues/במת_סמילנסקי.csv'));
-        data.venues.danceStage = await loadCSV(path.join(process.cwd(), 'data/venues/במת_המחול.csv'));
-        data.venues.redStage = await loadCSV(path.join(process.cwd(), 'data/venues/הבמה_האדומה.csv'));
-        data.venues.elevatingStage = await loadCSV(path.join(process.cwd(), 'data/venues/הבמה_המרימה.csv'));
-        data.venues.breakingPoint = await loadCSV(path.join(process.cwd(), 'data/venues/breaking_point.csv'));
+        data.venues.mainStage = await loadCSV(path.join(basePath, 'data/venues/במת_סמילנסקי.csv'));
+        data.venues.danceStage = await loadCSV(path.join(basePath, 'data/venues/במת_המחול.csv'));
+        data.venues.redStage = await loadCSV(path.join(basePath, 'data/venues/הבמה_האדומה.csv'));
+        data.venues.elevatingStage = await loadCSV(path.join(basePath, 'data/venues/הבמה_המרימה.csv'));
+        data.venues.breakingPoint = await loadCSV(path.join(basePath, 'data/venues/breaking_point.csv'));
         
         console.log('✅ כל המידע נטען בהצלחה מקבצי data/');
         return data;

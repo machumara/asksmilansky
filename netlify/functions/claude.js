@@ -9,22 +9,29 @@ async function loadAllData() {
         
         const data = {};
         
+        // נתיב בסיס לקבצי דאטה - מותאם ל-Netlify
+        const basePath = process.env.NODE_ENV === 'production' 
+            ? path.join(process.cwd(), 'data')
+            : path.join(__dirname, '../../data');
+        
+        console.log('📁 Base path:', basePath);
+        
         // טוען מידע כללי על הפסטיבל
-        data.festivalInfo = await fs.readFile(path.join(__dirname, '../../data/festival_info/fest_info.txt'), 'utf8');
+        data.festivalInfo = await fs.readFile(path.join(basePath, 'festival_info/fest_info.txt'), 'utf8');
         
         // טוען סגנון וטון
-        data.styleTone = await fs.readFile(path.join(__dirname, '../../data/style_tone/style_tone.txt'), 'utf8');
+        data.styleTone = await fs.readFile(path.join(basePath, 'style_tone/style_tone.txt'), 'utf8');
         
         // טוען הודעת פתיחה
-        data.welcomeMessage = await fs.readFile(path.join(__dirname, '../../data/welcome_message.txt'), 'utf8');
+        data.welcomeMessage = await fs.readFile(path.join(basePath, 'welcome_message.txt'), 'utf8');
         
         // טוען לוחות זמנים מכל המתחמים
         data.venues = {};
-        data.venues.mainStage = await loadCSV(path.join(__dirname, '../../data/venues/במת_סמילנסקי.csv'));
-        data.venues.danceStage = await loadCSV(path.join(__dirname, '../../data/venues/במת_המחול.csv'));
-        data.venues.redStage = await loadCSV(path.join(__dirname, '../../data/venues/הבמה_האדומה.csv'));
-        data.venues.elevatingStage = await loadCSV(path.join(__dirname, '../../data/venues/הבמה_המרימה.csv'));
-        data.venues.breakingPoint = await loadCSV(path.join(__dirname, '../../data/venues/breaking_point.csv'));
+        data.venues.mainStage = await loadCSV(path.join(basePath, 'venues/במת_סמילנסקי.csv'));
+        data.venues.danceStage = await loadCSV(path.join(basePath, 'venues/במת_המחול.csv'));
+        data.venues.redStage = await loadCSV(path.join(basePath, 'venues/הבמה_האדומה.csv'));
+        data.venues.elevatingStage = await loadCSV(path.join(basePath, 'venues/הבמה_המרימה.csv'));
+        data.venues.breakingPoint = await loadCSV(path.join(basePath, 'venues/breaking_point.csv'));
         
         console.log('✅ כל המידע נטען בהצלחה מקבצי data/');
         return data;
@@ -37,10 +44,13 @@ async function loadAllData() {
 // טוען קובץ CSV וממיר אותו לאובייקט
 async function loadCSV(filePath) {
     try {
+        console.log('📄 Loading CSV:', filePath);
         const csvText = await fs.readFile(filePath, 'utf8');
-        return parseCSV(csvText);
+        const result = parseCSV(csvText);
+        console.log('✅ CSV loaded successfully:', filePath, 'Rows:', result.length);
+        return result;
     } catch (error) {
-        console.error(`שגיאה בטעינת CSV ${filePath}:`, error);
+        console.error(`❌ שגיאה בטעינת CSV ${filePath}:`, error);
         throw error;
     }
 }

@@ -14,26 +14,34 @@ async function loadAllData() {
         // טוען מידע כללי על הפסטיבל
         // נסה נתיבים שונים עד שנמצא את הנכון
         let basePath;
-        try {
-            basePath = path.resolve(__dirname, '../../');
-            console.log('Trying path 1:', path.join(basePath, 'data/festival_info/fest_info.txt'));
-            data.festivalInfo = await fs.readFile(path.join(basePath, 'data/festival_info/fest_info.txt'), 'utf8');
-            console.log('✅ Found files at:', basePath);
-        } catch (e1) {
-            console.log('Path 1 failed:', e1.message);
+        const possiblePaths = [
+            '/var/task',
+            process.cwd(),
+            path.resolve(__dirname, '../../'),
+            '/opt/build/repo',
+            __dirname.replace('/netlify/functions', ''),
+            '/tmp'
+        ];
+        
+        let foundPath = null;
+        for (const testPath of possiblePaths) {
             try {
-                basePath = process.cwd();
-                console.log('Trying path 2:', path.join(basePath, 'data/festival_info/fest_info.txt'));
-                data.festivalInfo = await fs.readFile(path.join(basePath, 'data/festival_info/fest_info.txt'), 'utf8');
-                console.log('✅ Found files at:', basePath);
-            } catch (e2) {
-                console.log('Path 2 failed:', e2.message);
-                basePath = '/opt/build/repo';
-                console.log('Trying path 3:', path.join(basePath, 'data/festival_info/fest_info.txt'));
-                data.festivalInfo = await fs.readFile(path.join(basePath, 'data/festival_info/fest_info.txt'), 'utf8');
-                console.log('✅ Found files at:', basePath);
+                const fullPath = path.join(testPath, 'data/festival_info/fest_info.txt');
+                console.log('Trying path:', fullPath);
+                data.festivalInfo = await fs.readFile(fullPath, 'utf8');
+                foundPath = testPath;
+                console.log('✅ Found files at:', foundPath);
+                break;
+            } catch (e) {
+                console.log('Failed:', e.message);
             }
         }
+        
+        if (!foundPath) {
+            throw new Error('Could not find data files in any expected location');
+        }
+        
+        basePath = foundPath;
         
         // טוען סגנון וטון
         data.styleTone = await fs.readFile(path.join(basePath, 'data/style_tone/style_tone.txt'), 'utf8');

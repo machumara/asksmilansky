@@ -2,76 +2,68 @@ const fetch = require('node-fetch');
 const fs = require('fs').promises;
 const path = require('path');
 
-// טוען מידע מקבצי data/
+// טוען מידע מקבצי data/ דרך HTTP במקום file system
 async function loadAllData() {
     try {
-        console.log('🔄 טוען מידע מקבצי data/...');
-        console.log('Current directory (__dirname):', __dirname);
-        console.log('Process working directory (cwd):', process.cwd());
+        console.log('🔄 טוען מידע מקבצי data/ דרך HTTP...');
         
         const data = {};
         
         // טוען מידע כללי על הפסטיבל
-        // נסה נתיבים שונים עד שנמצא את הנכון
-        let basePath;
-        const possiblePaths = [
-            '/var/task',
-            process.cwd(),
-            path.resolve(__dirname, '../../'),
-            '/opt/build/repo',
-            __dirname.replace('/netlify/functions', ''),
-            '/tmp'
-        ];
-        
-        let foundPath = null;
-        for (const testPath of possiblePaths) {
-            try {
-                const fullPath = path.join(testPath, 'data/festival_info/fest_info.txt');
-                console.log('Trying path:', fullPath);
-                data.festivalInfo = await fs.readFile(fullPath, 'utf8');
-                foundPath = testPath;
-                console.log('✅ Found files at:', foundPath);
-                break;
-            } catch (e) {
-                console.log('Failed:', e.message);
-            }
-        }
-        
-        if (!foundPath) {
-            throw new Error('Could not find data files in any expected location');
-        }
-        
-        basePath = foundPath;
+        const festivalResponse = await fetch('https://ask-smilansky.netlify.app/data/festival_info/fest_info.txt');
+        if (!festivalResponse.ok) throw new Error(`Failed to fetch festival info: ${festivalResponse.status}`);
+        data.festivalInfo = await festivalResponse.text();
+        console.log('✅ Festival info loaded');
         
         // טוען סגנון וטון
-        data.styleTone = await fs.readFile(path.join(basePath, 'data/style_tone/style_tone.txt'), 'utf8');
+        const styleResponse = await fetch('https://ask-smilansky.netlify.app/data/style_tone/style_tone.txt');
+        if (!styleResponse.ok) throw new Error(`Failed to fetch style: ${styleResponse.status}`);
+        data.styleTone = await styleResponse.text();
+        console.log('✅ Style tone loaded');
         
         // טוען הודעת פתיחה
-        data.welcomeMessage = await fs.readFile(path.join(basePath, 'data/welcome_message.txt'), 'utf8');
+        const welcomeResponse = await fetch('https://ask-smilansky.netlify.app/data/welcome_message.txt');
+        if (!welcomeResponse.ok) throw new Error(`Failed to fetch welcome: ${welcomeResponse.status}`);
+        data.welcomeMessage = await welcomeResponse.text();
+        console.log('✅ Welcome message loaded');
         
         // טוען לוחות זמנים מכל המתחמים
         data.venues = {};
-        data.venues.mainStage = await loadCSV(path.join(basePath, 'data/venues/במת_סמילנסקי.csv'));
-        data.venues.danceStage = await loadCSV(path.join(basePath, 'data/venues/במת_המחול.csv'));
-        data.venues.redStage = await loadCSV(path.join(basePath, 'data/venues/הבמה_האדומה.csv'));
-        data.venues.elevatingStage = await loadCSV(path.join(basePath, 'data/venues/הבמה_המרימה.csv'));
-        data.venues.breakingPoint = await loadCSV(path.join(basePath, 'data/venues/breaking_point.csv'));
+        
+        const mainStageResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/במת_סמילנסקי.csv');
+        if (mainStageResponse.ok) {
+            data.venues.mainStage = parseCSV(await mainStageResponse.text());
+            console.log('✅ Main stage loaded');
+        }
+        
+        const danceStageResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/במת_המחול.csv');
+        if (danceStageResponse.ok) {
+            data.venues.danceStage = parseCSV(await danceStageResponse.text());
+            console.log('✅ Dance stage loaded');
+        }
+        
+        const redStageResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/הבמה_האדומה.csv');
+        if (redStageResponse.ok) {
+            data.venues.redStage = parseCSV(await redStageResponse.text());
+            console.log('✅ Red stage loaded');
+        }
+        
+        const elevatingStageResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/הבמה_המרימה.csv');
+        if (elevatingStageResponse.ok) {
+            data.venues.elevatingStage = parseCSV(await elevatingStageResponse.text());
+            console.log('✅ Elevating stage loaded');
+        }
+        
+        const breakingPointResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/breaking_point.csv');
+        if (breakingPointResponse.ok) {
+            data.venues.breakingPoint = parseCSV(await breakingPointResponse.text());
+            console.log('✅ Breaking Point loaded');
+        }
         
         console.log('✅ כל המידע נטען בהצלחה מקבצי data/');
         return data;
     } catch (error) {
         console.error('❌ שגיאה בטעינת מידע מקבצי data/:', error);
-        throw error;
-    }
-}
-
-// טוען קובץ CSV וממיר אותו לאובייקט
-async function loadCSV(filePath) {
-    try {
-        const csvText = await fs.readFile(filePath, 'utf8');
-        return parseCSV(csvText);
-    } catch (error) {
-        console.error(`שגיאה בטעינת CSV ${filePath}:`, error);
         throw error;
     }
 }

@@ -10,21 +10,21 @@ async function loadAllData() {
         const data = {};
         
         // טוען מידע כללי על הפסטיבל
-        data.festivalInfo = await fs.readFile(path.join(__dirname, '../../data/festival_info/fest_info.txt'), 'utf8');
+        data.festivalInfo = await fs.readFile(path.join(process.cwd(), 'data/festival_info/fest_info.txt'), 'utf8');
         
         // טוען סגנון וטון
-        data.styleTone = await fs.readFile(path.join(__dirname, '../../data/style_tone/style_tone.txt'), 'utf8');
+        data.styleTone = await fs.readFile(path.join(process.cwd(), 'data/style_tone/style_tone.txt'), 'utf8');
         
         // טוען הודעת פתיחה
-        data.welcomeMessage = await fs.readFile(path.join(__dirname, '../../data/welcome_message.txt'), 'utf8');
+        data.welcomeMessage = await fs.readFile(path.join(process.cwd(), 'data/welcome_message.txt'), 'utf8');
         
         // טוען לוחות זמנים מכל המתחמים
         data.venues = {};
-        data.venues.mainStage = await loadCSV(path.join(__dirname, '../../data/venues/במת_סמילנסקי.csv'));
-        data.venues.danceStage = await loadCSV(path.join(__dirname, '../../data/venues/במת_המחול.csv'));
-        data.venues.redStage = await loadCSV(path.join(__dirname, '../../data/venues/הבמה_האדומה.csv'));
-        data.venues.elevatingStage = await loadCSV(path.join(__dirname, '../../data/venues/הבמה_המרימה.csv'));
-        data.venues.breakingPoint = await loadCSV(path.join(__dirname, '../../data/venues/breaking_point.csv'));
+        data.venues.mainStage = await loadCSV(path.join(process.cwd(), 'data/venues/במת_סמילנסקי.csv'));
+        data.venues.danceStage = await loadCSV(path.join(process.cwd(), 'data/venues/במת_המחול.csv'));
+        data.venues.redStage = await loadCSV(path.join(process.cwd(), 'data/venues/הבמה_האדומה.csv'));
+        data.venues.elevatingStage = await loadCSV(path.join(process.cwd(), 'data/venues/הבמה_המרימה.csv'));
+        data.venues.breakingPoint = await loadCSV(path.join(process.cwd(), 'data/venues/breaking_point.csv'));
         
         console.log('✅ כל המידע נטען בהצלחה מקבצי data/');
         return data;

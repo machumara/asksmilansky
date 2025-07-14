@@ -101,9 +101,18 @@ function createFullSystemPrompt(data, userMessage) {
                 if (show['מה קורה'] === 'הופעה' && show['מי קורה']) {
                     // נותן ל-Claude את כל המידע כמו שהוא
                     venuesText += `• אמן: ${show['מי קורה']}`;
+                    
+                    // אם יש תיאור מפורט בעמודה "סוג" - מוסיף אותו במלואו
                     if (show['סוג'] && show['סוג'].trim()) {
-                        venuesText += ` | סוג: ${show['סוג'].trim()}`;
+                        const description = show['סוג'].trim();
+                        // אם זה תיאור ארוך (יותר מ-50 תווים) - מוסיף אותו כתיאור מלא
+                        if (description.length > 50) {
+                            venuesText += `\n  תיאור מלא: ${description}`;
+                        } else {
+                            venuesText += ` | סוג: ${description}`;
+                        }
                     }
+                    
                     venuesText += ` | תאריך: ${show['תאריך']} | שעה: ${show['מתי קורה']}\n`;
                 }
             });

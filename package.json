@@ -1,0 +1,15 @@
+{
+  "name": "ask-smilansky",
+  "version": "1.0.0",
+  "description": "ASK Smilansky Festival AI Bot",
+  "main": "index.html",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "keywords": ["ai", "chatbot", "festival", "smilansky"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}

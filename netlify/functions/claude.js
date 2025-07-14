@@ -69,14 +69,14 @@ async function loadAllData(baseUrl) {
     }
 }
 
-// פארסר פשוט ל-CSV
+// פארסר לקבצי TSV (Tab-separated values) במקום CSV
 function parseCSV(csvText) {
     const lines = csvText.trim().split('\n');
-    const headers = lines[0].split(',');
+    const headers = lines[0].split('\t'); // שימוש בטאב במקום פסיק
     const data = [];
     
     for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',');
+        const values = lines[i].split('\t'); // שימוש בטאב במקום פסיק
         const row = {};
         
         headers.forEach((header, index) => {

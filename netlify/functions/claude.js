@@ -45,24 +45,53 @@ async function loadCSV(filePath) {
     }
 }
 
-// פארסר פשוט ל-CSV
+// פארסר מתקדם ל-CSV שמטפל נכון במירכאות ופסיקים
 function parseCSV(csvText) {
     const lines = csvText.trim().split('\n');
-    const headers = lines[0].split(',');
+    if (lines.length === 0) return [];
+    
+    // פארס את השורה הראשונה להשגת הכותרות
+    const headers = parseCSVLine(lines[0]);
     const data = [];
     
     for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',');
+        const values = parseCSVLine(lines[i]);
         const row = {};
         
         headers.forEach((header, index) => {
-            row[header.trim()] = values[index] ? values[index].trim() : '';
+            row[header.trim()] = values[index] ? values[index].trim().replace(/^"|"$/g, '') : '';
         });
         
         data.push(row);
     }
     
     return data;
+}
+
+// פונקציה לפארס שורה יחידה ב-CSV עם תמיכה במירכאות
+function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+            inQuotes = !inQuotes;
+            current += char;
+        } else if (char === ',' && !inQuotes) {
+            result.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    
+    // הוסף את הערך האחרון
+    result.push(current);
+    
+    return result;
 }
 
 // יוצר prompt מלא עם כל המידע בטון נכון

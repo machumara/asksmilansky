@@ -84,8 +84,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Error initializing Claude API:', error);
     }
     
-    // Focus on input when page loads
-    messageInput.focus();
+    // Focus on input when page loads (not on mobile to prevent keyboard popup)
+    if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        messageInput.focus();
+    }
     
     // Handle enter key press
     messageInput.addEventListener('keypress', function(e) {
@@ -239,10 +241,37 @@ function scrollToBottom() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Handle window resize
+// Handle window resize and mobile keyboard
 window.addEventListener('resize', function() {
     setTimeout(scrollToBottom, 100);
 });
+
+// Handle mobile keyboard appearance
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    // Mobile device detected
+    messageInput.addEventListener('focus', function() {
+        setTimeout(() => {
+            scrollToBottom();
+            // Scroll input into view on mobile
+            this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+    });
+    
+    // Additional handling for viewport changes
+    const initialViewportHeight = window.innerHeight;
+    window.addEventListener('resize', function() {
+        const currentHeight = window.innerHeight;
+        const heightDifference = initialViewportHeight - currentHeight;
+        
+        // If keyboard is likely open (significant height reduction)
+        if (heightDifference > 150) {
+            document.body.style.setProperty('--keyboard-height', `${heightDifference}px`);
+            setTimeout(scrollToBottom, 100);
+        } else {
+            document.body.style.removeProperty('--keyboard-height');
+        }
+    });
+}
 
 // Add keyboard shortcuts
 document.addEventListener('keydown', function(e) {

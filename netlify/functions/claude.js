@@ -3,26 +3,27 @@ const fs = require('fs').promises;
 const path = require('path');
 
 // טוען מידע מקבצי data/ דרך HTTP במקום file system
-async function loadAllData() {
+async function loadAllData(baseUrl) {
     try {
         console.log('🔄 טוען מידע מקבצי data/ דרך HTTP...');
+        console.log('Base URL:', baseUrl);
         
         const data = {};
         
         // טוען מידע כללי על הפסטיבל
-        const festivalResponse = await fetch('https://ask-smilansky.netlify.app/data/festival_info/fest_info.txt');
+        const festivalResponse = await fetch(`${baseUrl}/data/festival_info/fest_info.txt`);
         if (!festivalResponse.ok) throw new Error(`Failed to fetch festival info: ${festivalResponse.status}`);
         data.festivalInfo = await festivalResponse.text();
         console.log('✅ Festival info loaded');
         
         // טוען סגנון וטון
-        const styleResponse = await fetch('https://ask-smilansky.netlify.app/data/style_tone/style_tone.txt');
+        const styleResponse = await fetch(`${baseUrl}/data/style_tone/style_tone.txt`);
         if (!styleResponse.ok) throw new Error(`Failed to fetch style: ${styleResponse.status}`);
         data.styleTone = await styleResponse.text();
         console.log('✅ Style tone loaded');
         
         // טוען הודעת פתיחה
-        const welcomeResponse = await fetch('https://ask-smilansky.netlify.app/data/welcome_message.txt');
+        const welcomeResponse = await fetch(`${baseUrl}/data/welcome_message.txt`);
         if (!welcomeResponse.ok) throw new Error(`Failed to fetch welcome: ${welcomeResponse.status}`);
         data.welcomeMessage = await welcomeResponse.text();
         console.log('✅ Welcome message loaded');
@@ -30,31 +31,31 @@ async function loadAllData() {
         // טוען לוחות זמנים מכל המתחמים
         data.venues = {};
         
-        const mainStageResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/במת_סמילנסקי.csv');
+        const mainStageResponse = await fetch(`${baseUrl}/data/venues/במת_סמילנסקי.csv`);
         if (mainStageResponse.ok) {
             data.venues.mainStage = parseCSV(await mainStageResponse.text());
             console.log('✅ Main stage loaded');
         }
         
-        const danceStageResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/במת_המחול.csv');
+        const danceStageResponse = await fetch(`${baseUrl}/data/venues/במת_המחול.csv`);
         if (danceStageResponse.ok) {
             data.venues.danceStage = parseCSV(await danceStageResponse.text());
             console.log('✅ Dance stage loaded');
         }
         
-        const redStageResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/הבמה_האדומה.csv');
+        const redStageResponse = await fetch(`${baseUrl}/data/venues/הבמה_האדומה.csv`);
         if (redStageResponse.ok) {
             data.venues.redStage = parseCSV(await redStageResponse.text());
             console.log('✅ Red stage loaded');
         }
         
-        const elevatingStageResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/הבמה_המרימה.csv');
+        const elevatingStageResponse = await fetch(`${baseUrl}/data/venues/הבמה_המרימה.csv`);
         if (elevatingStageResponse.ok) {
             data.venues.elevatingStage = parseCSV(await elevatingStageResponse.text());
             console.log('✅ Elevating stage loaded');
         }
         
-        const breakingPointResponse = await fetch('https://ask-smilansky.netlify.app/data/venues/breaking_point.csv');
+        const breakingPointResponse = await fetch(`${baseUrl}/data/venues/breaking_point.csv`);
         if (breakingPointResponse.ok) {
             data.venues.breakingPoint = parseCSV(await breakingPointResponse.text());
             console.log('✅ Breaking Point loaded');
@@ -171,8 +172,13 @@ exports.handler = async (event, context) => {
         const model = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
         const maxTokens = parseInt(process.env.CLAUDE_MAX_TOKENS) || 1000;
 
+        // Get base URL from request headers
+        const host = event.headers.host;
+        const protocol = event.headers['x-forwarded-proto'] || 'https';
+        const baseUrl = `${protocol}://${host}`;
+        
         // Load festival data from files
-        const festivalData = await loadAllData();
+        const festivalData = await loadAllData(baseUrl);
         
         // Create full system prompt with all data
         const fullSystemPrompt = createFullSystemPrompt(festivalData, message);

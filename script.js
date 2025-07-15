@@ -298,10 +298,7 @@ function formatMessage(text) {
         return `<p>${line}</p>`;
     }).join('');
     
-    // Convert URLs to clickable links - two-step process
-    // Step 1: Add spaces after links that are missing them (before Hebrew text)
-    formatted = formatted.replace(/(https?:\/\/[^\s]+)([\u0590-\u05FF])/g, '$1 $2');
-    // Step 2: Convert URLs to clickable links
+    // Convert URLs to clickable links - simple and effective
     formatted = formatted.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
     
     // Convert email addresses

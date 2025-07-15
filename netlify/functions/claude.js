@@ -28,6 +28,16 @@ async function loadAllData(baseUrl) {
         data.welcomeMessage = await welcomeResponse.text();
         console.log('✅ Welcome message loaded');
         
+        // טוען לינקים שימושיים
+        const linksResponse = await fetch(`${baseUrl}/data/links/useful_links.txt`);
+        if (linksResponse.ok) {
+            data.usefulLinks = await linksResponse.text();
+            console.log('✅ Useful links loaded');
+        } else {
+            data.usefulLinks = '';
+            console.log('⚠️ No useful links found');
+        }
+        
         // טוען לוחות זמנים מכל המתחמים
         data.venues = {};
         
@@ -141,6 +151,18 @@ ${data.festivalInfo}
 - הימנע מביטויים מפוצצים כמו וואו, מטורף, אש, אחי
 - אל תשתמש באימוג'ים בכלל
 - תן למידע לדבר בעד עצמו
+
+USEFUL LINKS - לינקים שימושיים:
+השתמש בלינקים האלה כשמתאים לשאלה:
+${data.usefulLinks || 'לינקים לא זמינים'}
+
+הנחיות לשימוש בלינקים:
+- אם שואלים על מקומות לינה, מלון, ללון בסביבה - תן את לינק הלינה
+- אם שואלים על התוכנית המלאה, תוכניות, הכל - תן את לינק התוכנית המלאה
+- אם שואלים על דרכי הגעה, איך להגיע, אוטובוס - תן את לינק דרכי הגעה
+- אם שואלים איפה הפסטיבל, מיקום, כתובת - תן את לינק המיקום
+
+שלב את הלינקים בצורה טבעית בתוך התשובה, לא סתם לזרוק אותם.
 
 השתמש במידע הזה כדי לענות נכון על שאלות על אמנים וסוגי מופעים.
 ${venuesText}

@@ -299,7 +299,7 @@ function formatMessage(text) {
     }).join('');
     
     // Convert URLs to clickable links - improved regex to handle all link types
-    formatted = formatted.replace(/(https?:\/\/\S+)/g, '<a href="$1" target="_blank">$1</a>');
+    formatted = formatted.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
     
     // Convert email addresses
     formatted = formatted.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<a href="mailto:$1">$1</a>');

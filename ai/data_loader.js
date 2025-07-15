@@ -19,6 +19,9 @@ class DataLoader {
             // טוען הודעת פתיחה
             this.cache.welcomeMessage = await this.loadFile('data/welcome_message.txt');
             
+            // טוען לינקים שימושיים
+            this.cache.usefulLinks = await this.loadFile('data/links/useful_links.txt');
+            
             // טוען לוחות זמנים מכל המתחמים
             this.cache.venues = {};
             this.cache.venues.mainStage = await this.loadCSV('data/venues/במת_סמילנסקי.csv');
@@ -46,6 +49,30 @@ class DataLoader {
             return await response.text();
         } catch (error) {
             console.error(`שגיאה בטעינת קובץ ${path}:`, error);
+            throw error;
+        }
+    }
+
+    // טוען לינקים שימושיים
+    async loadUsefulLinks(path) {
+        try {
+            const response = await fetch(path);
+            if (!response.ok) throw new Error(`Failed to load ${path}`);
+            const text = await response.text();
+            
+            const links = {};
+            const lines = text.trim().split('\n');
+            
+            lines.forEach(line => {
+                const [key, url] = line.split(': ');
+                if (key && url) {
+                    links[key.trim()] = url.trim();
+                }
+            });
+            
+            return links;
+        } catch (error) {
+            console.error(`שגיאה בטעינת לינקים ${path}:`, error);
             throw error;
         }
     }
@@ -179,6 +206,14 @@ class DataLoader {
         return this.cache.welcomeMessage;
     }
     
+    // מקבל לינקים שימושיים
+    getUsefulLinks() {
+        if (!this.loaded || !this.cache.usefulLinks) {
+            return '';
+        }
+        return this.cache.usefulLinks;
+    }
+    
     // בדיקה אם המידע נטען
     isLoaded() {
         return this.loaded;
@@ -187,6 +222,59 @@ class DataLoader {
     // מקבל מידע גולמי
     getRawData() {
         return this.cache;
+    }
+
+    // מחזיר לינק רלוונטי לפי הנושא
+    getRelevantLink(question) {
+        if (!this.loaded || !this.cache.usefulLinks) return null;
+        
+        const lowerQuestion = question.toLowerCase();
+        
+        // מקומות לינה
+        if (lowerQuestion.includes('לינה') || lowerQuestion.includes('מלון') || 
+            lowerQuestion.includes('ללון') || lowerQuestion.includes('לשינה') || 
+            lowerQuestion.includes('מקום לשינה') || lowerQuestion.includes('לינה בסביבה')) {
+            return {
+                type: 'מקומות לינה',
+                url: this.cache.usefulLinks['מקומות לינה'],
+                text: 'מידע מפורט על מקומות לינה בסביבה יש כאן'
+            };
+        }
+        
+        // תוכנית מלאה
+        if (lowerQuestion.includes('תוכנית') || lowerQuestion.includes('מלא') || 
+            lowerQuestion.includes('הכל') || lowerQuestion.includes('שלם') || 
+            lowerQuestion.includes('כל הפרטים') || lowerQuestion.includes('מפורט')) {
+            return {
+                type: 'תוכנית מלאה',
+                url: this.cache.usefulLinks['תוכנית מלאה'],
+                text: 'את התוכנית המלאה אתה יכול למצוא כאן'
+            };
+        }
+        
+        // דרכי הגעה
+        if (lowerQuestion.includes('דרכי הגעה') || lowerQuestion.includes('איך להגיע') || 
+            lowerQuestion.includes('אוטובוס') || lowerQuestion.includes('תחבורה') || 
+            lowerQuestion.includes('איך מגיעים') || lowerQuestion.includes('איך אוכל להגיע')) {
+            return {
+                type: 'דרכי הגעה',
+                url: this.cache.usefulLinks['דרכי הגעה'],
+                text: 'מידע על דרכי הגעה בתחבורה ציבורית יש כאן'
+            };
+        }
+        
+        // מיקום הפסטיבל
+        if (lowerQuestion.includes('איפה') || lowerQuestion.includes('מיקום') || 
+            lowerQuestion.includes('כתובת') || lowerQuestion.includes('מקום') || 
+            lowerQuestion.includes('איפה זה') || lowerQuestion.includes('איפה מתקיים')) {
+            return {
+                type: 'מיקום הפסטיבל',
+                url: this.cache.usefulLinks['מיקום הפסטיבל'],
+                text: 'מיקום הפסטיבל בגוגל מפות'
+            };
+        }
+        
+        return null;
     }
 }
 

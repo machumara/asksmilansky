@@ -298,8 +298,8 @@ function formatMessage(text) {
         return `<p>${line}</p>`;
     }).join('');
     
-    // Convert URLs to clickable links - simple and effective
-    formatted = formatted.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+    // Convert URLs to clickable links - precise regex to avoid extra characters
+    formatted = formatted.replace(/(https?:\/\/[^\s]+?)(?=\s|$|[^\w\-\.\/\?\=\&\#\%])/g, '<a href="$1" target="_blank">$1</a>');
     
     // Convert email addresses
     formatted = formatted.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<a href="mailto:$1">$1</a>');

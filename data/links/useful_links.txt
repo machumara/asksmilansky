@@ -1,4 +1,8 @@
-מקומות לינה: https://visitbr7.co.il/lodging/
-תוכנית מלאה: https://www.bouras.co.il/program
-דרכי הגעה: https://bus.gov.il/#/origindestination/1/0/false/5000-3197/2109/9000-292/2523
-מיקום הפסטיבל: https://maps.app.goo.gl/AhXVYKG62gxsXpwAA
+lodging
+https://visitbr7.co.il/lodging/
+program
+https://www.bouras.co.il/program
+transportation
+https://bus.gov.il/#/origindestination/1/0/false/5000-3197/2109/9000-292/2523
+location
+https://maps.app.goo.gl/AhXVYKG62gxsXpwAA

@@ -63,22 +63,25 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Wait for all scripts to load properly
     await waitForScriptsToLoad();
     
-    // Initialize DataLoader first to get welcome message
+    // Initialize DataLoader first to get welcome message (only for frontend display)
     const tempDataLoader = new DataLoader();
-    await tempDataLoader.loadAllData();
-    
-    // Update welcome message dynamically
-    updateWelcomeMessage(tempDataLoader.getWelcomeMessage());
+    try {
+        await tempDataLoader.loadAllData();
+        // Update welcome message dynamically
+        updateWelcomeMessage(tempDataLoader.getWelcomeMessage());
+    } catch (error) {
+        console.log('Could not load welcome message from client, using fallback');
+        updateWelcomeMessage('היי! אני ASK סמילנסקי וברוך הבא לפסטיבל!');
+    }
     
     try {
-        // Initialize Claude API components (no API key needed for Netlify)
+        // Initialize simplified components (server handles all data loading)
         claudeConfig = new ClaudeConfig();
         promptBuilder = new window.PromptBuilder();
-        await promptBuilder.initialize();
         
         claudeEngine = new ClaudeEngine(claudeConfig, promptBuilder);
         
-        console.log('אסק סמילנסקי עם Claude API מוכן!');
+        console.log('אסק סמילנסקי עם Claude API מוכן! (Server handles data)');
         
     } catch (error) {
         console.error('Error initializing Claude API:', error);

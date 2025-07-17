@@ -100,7 +100,7 @@ function parseCSV(csvText) {
 }
 
 // יוצר prompt מלא עם כל המידע בטון נכון
-function createFullSystemPrompt(data, userMessage) {
+function createFullSystemPrompt(data, userMessage, relevantLink = null) {
     // מעצב את לוחות הזמנים בצורה מלאה ל-Claude
     let venuesText = '';
     for (const [venueName, venueData] of Object.entries(data.venues)) {
@@ -245,7 +245,7 @@ exports.handler = async (event, context) => {
     try {
         // Parse request body
         const requestData = JSON.parse(event.body);
-        const { api_key, message, system_prompt } = requestData;
+        const { api_key, message, system_prompt, relevant_link } = requestData;
 
         // Get API key and model from environment variables
         const apiKey = process.env.CLAUDE_API_KEY || api_key;
@@ -260,13 +260,13 @@ exports.handler = async (event, context) => {
         // Load festival data from files
         const festivalData = await loadAllData(baseUrl);
         
-        // Create full system prompt with all data
-        const fullSystemPrompt = createFullSystemPrompt(festivalData, message);
+        // Create full system prompt with all data - this replaces the client prompt
+        const fullSystemPrompt = createFullSystemPrompt(festivalData, message, relevant_link);
 
         console.log('📥 Received request:');
         console.log('   Message:', message?.substring(0, 50) + '...');
         console.log('   API Key:', apiKey ? apiKey.substring(0, 20) + '...' : 'None');
-        console.log('   System Prompt Length:', system_prompt?.length || 0);
+        console.log('   Using SERVER prompt (not client prompt)');
         console.log('   Model:', model);
         console.log('   Max Tokens:', maxTokens);
 

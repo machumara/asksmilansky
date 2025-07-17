@@ -223,13 +223,13 @@ body {
         padding: 0 10px;
         min-height: 0;
         height: calc(100vh - 120px); /* Account for header height */
-        padding-bottom: 20px;
+        padding-bottom: 100px; /* Increased padding to lift input higher */
     }
     
     .chat-messages {
         padding: 10px 0;
         margin-bottom: 15px;
-        height: calc(100% - 80px); /* Leave space for input */
+        height: calc(100% - 120px); /* Adjusted to account for higher input position */
     }
     
     .message-content {
@@ -238,7 +238,12 @@ body {
     }
     
     .chat-input-container {
-        margin-bottom: 10px;
+        position: fixed;
+        bottom: 60px; /* Lifted higher from bottom */
+        left: 20px;
+        right: 20px;
+        margin: 0;
+        z-index: 1000;
         /* Add safe area for iPhone notch */
         padding-bottom: max(10px, env(safe-area-inset-bottom));
     }
@@ -257,6 +262,13 @@ body {
     .chat-input:focus {
         /* Ensure input stays visible when keyboard opens */
         transform: translateY(0);
+    }
+    
+    /* Additional spacing to prevent content hiding behind fixed input */
+    .chat-messages::after {
+        content: '';
+        display: block;
+        height: 20px;
     }
 }
 

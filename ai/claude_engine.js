@@ -16,7 +16,11 @@ class ClaudeEngine {
         this.updateUsageStats();
 
         try {
+            // Check if there's a relevant link for this question
+            const relevantLink = this.promptBuilder.dataLoader.getRelevantLink(userMessage);
+            
             // Use Netlify function instead of direct API call
+            // The server will handle the complete system prompt from data files
             const response = await fetch('/.netlify/functions/claude', {
                 method: 'POST',
                 headers: {
@@ -24,7 +28,7 @@ class ClaudeEngine {
                 },
                 body: JSON.stringify({
                     message: userMessage,
-                    system_prompt: await this.promptBuilder.getSystemPrompt()
+                    relevant_link: relevantLink
                 })
             });
 
@@ -34,7 +38,10 @@ class ClaudeEngine {
             }
 
             const data = await response.json();
-            const assistantMessage = data.content[0].text;
+            let assistantMessage = data.content[0].text;
+
+            // Note: Server now handles link integration in the prompt
+            // but we keep this for backward compatibility if needed
 
             // Update conversation history
             this.promptBuilder.addConversation(userMessage, assistantMessage);

@@ -223,13 +223,13 @@ body {
         padding: 0 10px;
         min-height: 0;
         height: calc(100vh - 120px); /* Account for header height */
-        padding-bottom: 100px; /* Increased padding to lift input higher */
+        padding-bottom: 160px; /* Increased even more to account for higher input position */
     }
     
     .chat-messages {
         padding: 10px 0;
         margin-bottom: 15px;
-        height: calc(100% - 120px); /* Adjusted to account for higher input position */
+        height: calc(100% - 160px); /* Adjusted to account for much higher input position */
     }
     
     .message-content {
@@ -239,7 +239,7 @@ body {
     
     .chat-input-container {
         position: fixed;
-        bottom: 60px; /* Lifted higher from bottom */
+        bottom: 120px; /* Raised much higher to be above browser navigation bar */
         left: 20px;
         right: 20px;
         margin: 0;
@@ -268,7 +268,7 @@ body {
     .chat-messages::after {
         content: '';
         display: block;
-        height: 20px;
+        height: 40px; /* Increased spacing */
     }
 }
 

@@ -22,6 +22,10 @@ const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
 const chatMessages = document.getElementById('chatMessages');
 
+// Conversation history for context
+let conversationHistory = [];
+const MAX_HISTORY_LENGTH = 5; // Keep last 5 exchanges
+
 // Initialize AI components
 let askSmilansky = null;
 let claudeConfig = null;
@@ -141,11 +145,25 @@ async function sendMessage() {
         
         // Try Claude API via Netlify Function
         if (claudeEngine) {
-            response = await claudeEngine.sendMessage(messageText);
+            response = await claudeEngine.sendMessage(messageText, conversationHistory);
         } 
         // Last resort fallback
         else {
             response = getFallbackResponse(messageText);
+        }
+        
+        // Add to conversation history
+        conversationHistory.push({
+            role: 'user',
+            content: messageText
+        }, {
+            role: 'assistant', 
+            content: response
+        });
+        
+        // Keep only last exchanges
+        if (conversationHistory.length > MAX_HISTORY_LENGTH * 2) {
+            conversationHistory = conversationHistory.slice(-MAX_HISTORY_LENGTH * 2);
         }
         
         // Simulate thinking time

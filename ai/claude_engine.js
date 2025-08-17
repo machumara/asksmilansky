@@ -11,7 +11,7 @@ class ClaudeEngine {
         };
     }
 
-    async sendMessage(userMessage) {
+    async sendMessage(userMessage, conversationHistory = []) {
         // No API key check needed - handled by Netlify Function
         this.updateUsageStats();
 
@@ -28,6 +28,7 @@ class ClaudeEngine {
                 },
                 body: JSON.stringify({
                     message: userMessage,
+                    conversation_history: conversationHistory,
                     relevant_link: relevantLink
                 })
             });

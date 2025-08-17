@@ -241,7 +241,7 @@ exports.handler = async (event, context) => {
     try {
         // Parse request body
         const requestData = JSON.parse(event.body);
-        const { api_key, message, system_prompt, relevant_link } = requestData;
+        const { api_key, message, system_prompt, relevant_link, conversation_history } = requestData;
 
         // Get API key and model from environment variables
         const apiKey = process.env.CLAUDE_API_KEY || api_key;
@@ -262,6 +262,7 @@ exports.handler = async (event, context) => {
         console.log('📥 Received request:');
         console.log('   Message:', message?.substring(0, 50) + '...');
         console.log('   API Key:', apiKey ? apiKey.substring(0, 20) + '...' : 'None');
+        console.log('   History length:', conversation_history?.length || 0);
         console.log('   Using SERVER prompt (not client prompt)');
         console.log('   Model:', model);
         console.log('   Max Tokens:', maxTokens);
@@ -275,11 +276,21 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // Prepare Claude API request
+        // Prepare Claude API request with conversation history
+        const messages = [];
+        
+        // Add conversation history if provided
+        if (conversation_history && Array.isArray(conversation_history) && conversation_history.length > 0) {
+            messages.push(...conversation_history);
+        }
+        
+        // Add current message
+        messages.push({ role: 'user', content: message });
+        
         const claudeData = {
             model: model,
             max_tokens: maxTokens,
-            messages: [{ role: 'user', content: message }]
+            messages: messages
         };
 
         // Add system prompt only if not empty

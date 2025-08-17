@@ -21,6 +21,9 @@ class ClaudeEngine {
             
             // Use Netlify function instead of direct API call
             // The server will handle the complete system prompt from data files
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+            
             const response = await fetch('/.netlify/functions/claude', {
                 method: 'POST',
                 headers: {
@@ -30,11 +33,20 @@ class ClaudeEngine {
                     message: userMessage,
                     conversation_history: conversationHistory,
                     relevant_link: relevantLink
-                })
+                }),
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
-                const errorData = await response.json();
+                const errorData = await response.json().catch(() => ({ error: response.statusText }));
+                
+                // Check for overload condition
+                if (errorData.error === 'OVERLOAD' || response.status === 503) {
+                    throw new Error(errorData.message || 'יש עומס גבוה כרגע. אנא נסה שוב בעוד רגע או שניים!');
+                }
+                
                 throw new Error(`Proxy Error: ${errorData.error || response.statusText}`);
             }
 
@@ -57,6 +69,12 @@ class ClaudeEngine {
 
         } catch (error) {
             console.error('Error calling Claude API via proxy:', error);
+            
+            // Handle timeout specifically
+            if (error.name === 'AbortError') {
+                throw new Error('הבקשה ארכה יותר מדי. אנא נסה שוב.');
+            }
+            
             throw error;
         }
     }

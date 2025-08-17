@@ -182,11 +182,17 @@ async function sendMessage() {
             hideTypingIndicator();
             
             // Show specific error messages
-            let errorMessage = 'אופס! משהו השתבש. ';
-            if (error.message.includes('quota')) {
-                errorMessage += 'נגמרה מכסת השימוש היומית. נסה מחר או שדרג את החשבון.';
+            let errorMessage;
+            
+            // Check for overload condition
+            if (error.message.includes('עומס גבוה') || error.message.includes('OVERLOAD')) {
+                errorMessage = '🔎 יש עומס גבוה כרגע. אנא נסה שוב בעוד רגע או שניים!';
+            } else if (error.message.includes('הבקשה ארכה')) {
+                errorMessage = '⏱️ הבקשה ארכה יותר מדי. אנא נסה שוב.';
+            } else if (error.message.includes('quota')) {
+                errorMessage = 'אופס! נגמרה מכסת השימוש היומית. נסה מחר או שדרג את החשבון.';
             } else {
-                errorMessage += 'נסה שוב או שאל אותי משהו אחר.';
+                errorMessage = 'אופס! משהו השתבש. נסה שוב או שאל אותי משהו אחר.';
             }
             
             addMessage(errorMessage, 'bot');

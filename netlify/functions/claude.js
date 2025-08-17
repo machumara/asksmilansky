@@ -314,6 +314,19 @@ exports.handler = async (event, context) => {
         if (!response.ok) {
             const errorText = await response.text();
             console.log('❌ Claude API Error:', response.status, errorText);
+            
+            // Check for rate limiting or overload
+            if (response.status === 429 || response.status === 503) {
+                return {
+                    statusCode: 503,
+                    headers,
+                    body: JSON.stringify({ 
+                        error: 'OVERLOAD',
+                        message: 'יש עומס גבוה כרגע. אנא נסה שוב בעוד רגע או שניים!'
+                    })
+                };
+            }
+            
             return {
                 statusCode: 500,
                 headers,

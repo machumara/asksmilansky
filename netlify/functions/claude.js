@@ -135,6 +135,8 @@ ${data.styleTone}
 
 השתמש במידע הטרי והמדויק שלך על הפסטיבל, אל תסתמך על ידע כללי על אמנים. אם מישהו שואל על משהו שלא בנתונים שלך - תגיד שאתה לא בטוח ותפנה לאתר הפסטיבל.
 
+חשוב: אל תפנה לאתר העיריה או לעיריית באר שבע. במקום זה, הפנה לאתר הפסטיבל. כשמפנה לאתר הפסטיבל או ממליץ לגשת אליו, תמיד צרף את הקישור: https://www.bouras.co.il/smilansky
+
 ===== מידע על הפסטיבל =====
 ${data.festivalInfo}
 
@@ -316,7 +318,7 @@ exports.handler = async (event, context) => {
             console.log('❌ Claude API Error:', response.status, errorText);
             
             // Check for rate limiting or overload
-            if (response.status === 429 || response.status === 503) {
+            if (response.status === 429 || response.status === 503 || response.status === 529) {
                 return {
                     statusCode: 503,
                     headers,

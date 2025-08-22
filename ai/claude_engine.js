@@ -43,7 +43,7 @@ class ClaudeEngine {
                 const errorData = await response.json().catch(() => ({ error: response.statusText }));
                 
                 // Check for overload condition
-                if (errorData.error === 'OVERLOAD' || response.status === 503) {
+                if (errorData.error === 'OVERLOAD' || response.status === 503 || response.status === 529) {
                     throw new Error(errorData.message || 'יש עומס גבוה כרגע. אנא נסה שוב בעוד רגע או שניים!');
                 }
                 

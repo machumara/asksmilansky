@@ -64,6 +64,15 @@ function waitForScriptsToLoad() {
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', async function() {
+    // FESTIVAL IS OVER - No initialization needed
+    // Just keep the thank you message as is
+    console.log('פסטיבל סמילנסקי 2025 הסתיים - תודה לכולם!');
+    
+    // Remove any interactive functionality
+    return;
+    
+    // OLD CODE - DISABLED
+    /*
     // Wait for all scripts to load properly
     await waitForScriptsToLoad();
     
@@ -106,6 +115,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Handle send button click
     sendButton.addEventListener('click', sendMessage);
+    */
 });
 
 // Create development mode indicator
